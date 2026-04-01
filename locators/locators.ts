@@ -21,16 +21,18 @@ export const HomePageLocators = {
 
 export const CoursesPageLocators = {
     // Filter checkboxes
-    beginnerLevelCheckbox: 'input[value="Beginner"]',
-    englishLanguageCheckbox: 'input[value="English"]',
+    levelFilterButton: 'button:has-text("Level")',
+    languageFilterButton: 'button:has-text("Language")',
+    beginnerLevelCheckbox: 'label:has-text("Beginner") input[type="checkbox"]',
+    englishLanguageCheckbox: 'label:has-text("English") input[type="checkbox"]',
     
     // Course cards in the search results
     courseCards: 'div.cds-ProductCard-content',
     
     // Individual elements inside a course card
     courseName: 'h3.cds-CommonCard-title',
-    learningHours: 'p.cds-CommonCard-metadata span:nth-child(1)', // Example selector
-    rating: 'span.cds-CommonCard-ratings',
+    learningHours: 'div.cds-CommonCard-metadata p:nth-child(2)', // Updated selector
+    rating: 'div.cds-CommonCard-ratings p.cds-119', // Updated selector
     
     // Filter section headers to expand if needed
     levelFilterHeader: 'button:has-text("Level")',
@@ -42,15 +44,15 @@ export const EnterprisePageLocators = {
     coursesForCampusLink: 'a:has-text("Courses for Campus")',
     
     // "Ready to transform" form fields
-    firstNameInput: 'input[name="firstName"]',
-    lastNameInput: 'input[name="lastName"]',
-    emailInput: 'input[name="email"]',
-    phoneInput: 'input[name="phone"]',
-    institutionInput: 'input[name="institution"]',
+    firstNameInput: 'input#FirstName',
+    lastNameInput: 'input#LastName',
+    emailInput: 'input#Email',
+    phoneInput: 'input#Phone',
+    institutionInput: 'input#Company',
     
     // Submit button for the form
     submitButton: 'button[type="submit"]',
     
     // Error message for invalid email
-    emailErrorMessage: '#ValidMsgEmail', // Example ID for error message
+    emailErrorMessage: 'div[role="alert"]', // More generic but likely to work
 };

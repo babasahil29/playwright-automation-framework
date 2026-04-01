@@ -24,13 +24,29 @@ export class CoursesPage {
      * @param language The language filter (e.g., "English")
      */
     async applyFilters(level: string, language: string) {
-        // Apply the level filter (e.g., "Beginner")
-        // We use a selector that matches the checkbox with the specified level
-        await this.page.check(`input[value="${level}"]`);
+        // 1. Click on the Level filter dropdown
+        await this.page.click(CoursesPageLocators.levelFilterButton);
         
-        // Apply the language filter (e.g., "English")
-        // We use a selector that matches the checkbox with the specified language
-        await this.page.check(`input[value="${language}"]`);
+        // 2. Select the level (e.g., "Beginner")
+        // We use a more robust selector that finds the label containing the text
+        const levelSelector = `label:has-text("${level}")`;
+        await this.page.click(levelSelector);
+        
+        // 3. Click the "Apply" or "View" button if it exists, or click outside to close
+        // Coursera often updates results immediately or requires a click on "Apply"
+        // We'll click the Level button again to close the dropdown if it's still open
+        await this.page.click(CoursesPageLocators.levelFilterButton);
+        await this.page.waitForLoadState('networkidle');
+
+        // 4. Click on the Language filter dropdown
+        await this.page.click(CoursesPageLocators.languageFilterButton);
+        
+        // 5. Select the language (e.g., "English")
+        const languageSelector = `label:has-text("${language}")`;
+        await this.page.click(languageSelector);
+        
+        // 6. Close the Language dropdown
+        await this.page.click(CoursesPageLocators.languageFilterButton);
         
         // Wait for the results to update after applying filters
         await this.page.waitForLoadState('networkidle');
@@ -56,13 +72,13 @@ export class CoursesPage {
             const card = courseCards[i];
             
             // Extract the course name
-            const name = await card.$eval(CoursesPageLocators.courseName, el => el.textContent?.trim());
+            const name = await card.$(CoursesPageLocators.courseName).then(el => el ? el.textContent() : 'N/A');
             
             // Extract the total learning hours (if available)
-            const hours = await card.$eval(CoursesPageLocators.learningHours, el => el.textContent?.trim());
+            const hours = await card.$(CoursesPageLocators.learningHours).then(el => el ? el.textContent() : 'N/A');
             
             // Extract the rating
-            const rating = await card.$eval(CoursesPageLocators.rating, el => el.textContent?.trim());
+            const rating = await card.$(CoursesPageLocators.rating).then(el => el ? el.textContent() : 'N/A');
             
             // Add the course details to the array
             courseDetails.push({ name, hours, rating });
@@ -80,11 +96,15 @@ export class CoursesPage {
      * @returns An object containing arrays of languages and levels
      */
     async extractLanguagesAndLevels() {
-        // Find all language options on the page
-        const languages = await this.page.$$eval('input[name="language"]', els => els.map(el => el.getAttribute('value')));
-        
-        // Find all level options on the page
-        const levels = await this.page.$$eval('input[name="level"]', els => els.map(el => el.getAttribute('value')));
+        // 1. Open Language dropdown to see options
+        await this.page.click(CoursesPageLocators.languageFilterButton);
+        const languages = await this.page.$$eval('div[data-testid="search-filter-group-Language"] label span', els => els.map(el => el.textContent?.trim()));
+        await this.page.click(CoursesPageLocators.languageFilterButton); // Close
+
+        // 2. Open Level dropdown to see options
+        await this.page.click(CoursesPageLocators.levelFilterButton);
+        const levels = await this.page.$$eval('div[data-testid="search-filter-group-Level"] label span', els => els.map(el => el.textContent?.trim()));
+        await this.page.click(CoursesPageLocators.levelFilterButton); // Close
         
         // Log the action to the console
         console.log(`🌐 Extracted ${languages.length} languages and ${levels.length} levels`);
